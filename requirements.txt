@@ -1,0 +1,13 @@
+torch>=2.1
+torchvision>=0.16
+numpy>=1.24
+scipy>=1.10
+tqdm>=4.66
+PyYAML>=6.0
+omegaconf>=2.3
+tensorboard>=2.14
+scikit-image>=0.21
+h5py>=3.9
+pydicom>=2.4
+opencv-python>=4.8
+torch-radon>=2.0.0
