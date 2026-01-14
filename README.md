@@ -31,7 +31,6 @@ The model leverages:
 - Joint optimization of diffusion loss and physics-consistency loss
 - End-to-end differentiable CT forward and adjoint operators
 - Uncertainty estimation via multiple conditional diffusion samples
-- Fully reproducible, research-grade PyTorch codebase
 
 ---
 
