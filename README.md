@@ -6,9 +6,9 @@
 
 Official implementation of the paper:
 
-> **“Physics-Conditioned Diffusion Model for Low-Dose CT Reconstruction”**  
-> *Md Imam Ahasan, Guangchao Yang, A. F. M. Abdun Noor, Mohammad Azam Khan*  
-> Submitted to **28th International Conference on Pattern Recognition (2026)**, January 2026.
+> **“PCDiff: Physics-Conditioned Diffusion for Low-Dose CT Reconstruction”**  
+> *anonymous*  
+> Submitted to **.......**, January 2026.
 
 ---
 
