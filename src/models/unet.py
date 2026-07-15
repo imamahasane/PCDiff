@@ -8,6 +8,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 def timestep_embedding(timesteps: torch.Tensor, dim: int, max_period: int = 10000) -> torch.Tensor:
     half = dim // 2
     freqs = torch.exp(-math.log(max_period) * torch.arange(0, half, device=timesteps.device).float() / half)
@@ -17,13 +18,28 @@ def timestep_embedding(timesteps: torch.Tensor, dim: int, max_period: int = 1000
         emb = torch.cat([emb, torch.zeros_like(emb[:, :1])], dim=-1)
     return emb
 
+
 class SiLU(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return x * torch.sigmoid(x)
 
+
+def _num_groups(num_channels: int, preferred: int = 32) -> int:
+   
+    g = min(preferred, num_channels)
+    while num_channels % g != 0:
+        g -= 1
+    return g
+
+
 class GroupNorm32(nn.GroupNorm):
+
+    def __init__(self, num_groups: int, num_channels: int, **kwargs):
+        super().__init__(_num_groups(num_channels, num_groups), num_channels, **kwargs)
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return super().forward(x.float()).type_as(x)
+
 
 class ResBlock(nn.Module):
     def __init__(self, in_ch: int, out_ch: int, emb_ch: int, dropout: float):
@@ -47,6 +63,7 @@ class ResBlock(nn.Module):
         h = self.conv2(self.dropout(self.act2(self.norm2(h))))
         return h + self.skip(x)
 
+
 class AttentionBlock(nn.Module):
     def __init__(self, ch: int, num_heads: int = 4):
         super().__init__()
@@ -64,33 +81,37 @@ class AttentionBlock(nn.Module):
         q, k, v = torch.chunk(qkv, 3, dim=1)
         head_dim = c // self.num_heads
 
-        q = q.view(b, self.num_heads, head_dim, h * w).permute(0, 1, 3, 2)  # b,heads,hw,hd
-        k = k.view(b, self.num_heads, head_dim, h * w)  # b,heads,hd,hw
-        v = v.view(b, self.num_heads, head_dim, h * w).permute(0, 1, 3, 2)  # b,heads,hw,hd
+        q = q.view(b, self.num_heads, head_dim, h * w).permute(0, 1, 3, 2)
+        k = k.view(b, self.num_heads, head_dim, h * w)
+        v = v.view(b, self.num_heads, head_dim, h * w).permute(0, 1, 3, 2)
 
         scale = 1.0 / math.sqrt(head_dim)
-        attn = torch.softmax(torch.matmul(q * scale, k), dim=-1)  # b,heads,hw,hw
-        h_ = torch.matmul(attn, v)  # b,heads,hw,hd
+        attn = torch.softmax(torch.matmul(q * scale, k), dim=-1)
+        h_ = torch.matmul(attn, v)
         h_ = h_.permute(0, 1, 3, 2).contiguous().view(b, c, h, w)
         return x + self.proj(h_)
+
 
 class Downsample(nn.Module):
     def __init__(self, ch: int):
         super().__init__()
         self.op = nn.Conv2d(ch, ch, 3, stride=2, padding=1)
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.op(x)
+
 
 class Upsample(nn.Module):
     def __init__(self, ch: int):
         super().__init__()
         self.conv = nn.Conv2d(ch, ch, 3, padding=1)
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = F.interpolate(x, scale_factor=2.0, mode="nearest")
         return self.conv(x)
 
-class TimestepEmbedSequential(nn.Sequential):
 
+class TimestepEmbedSequential(nn.Sequential):
     def __init__(self, *layers: nn.Module, needs_skip: bool = False):
         super().__init__(*layers)
         self.needs_skip = needs_skip
@@ -103,6 +124,7 @@ class TimestepEmbedSequential(nn.Sequential):
                 x = layer(x)
         return x
 
+
 @dataclass
 class UNetConfig:
     in_channels: int = 2
@@ -114,8 +136,8 @@ class UNetConfig:
     num_heads: int = 4
     dropout: float = 0.0
 
+
 class UNetModel(nn.Module):
-    
 
     def __init__(self, cfg: UNetConfig, image_size: int):
         super().__init__()
@@ -161,7 +183,7 @@ class UNetModel(nn.Module):
             out_ch = cfg.base_channels * mult
             for _ in range(cfg.num_res_blocks + 1):
                 skip_ch = chs.pop()
-                layers: List[nn.Module] = [ResBlock(ch + skip_ch, out_ch, time_emb_dim, cfg.dropout)]
+                layers = [ResBlock(ch + skip_ch, out_ch, time_emb_dim, cfg.dropout)]
                 ch = out_ch
                 if (image_size // ds) in cfg.attention_resolutions:
                     layers.append(AttentionBlock(ch, cfg.num_heads))
@@ -195,5 +217,4 @@ class UNetModel(nn.Module):
                 h = torch.cat([h, hs.pop()], dim=1)
             h = block(h, emb)
 
-        h = self.out_conv(self.out_act(self.out_norm(h)))
-        return h
+        return self.out_conv(self.out_act(self.out_norm(h)))

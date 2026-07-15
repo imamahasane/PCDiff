@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Optional
 
 from torch.utils.tensorboard import SummaryWriter
+
 
 def setup_logger(log_dir: Path, name: str = "pcdiff") -> logging.Logger:
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -24,6 +24,7 @@ def setup_logger(log_dir: Path, name: str = "pcdiff") -> logging.Logger:
 
     logger.propagate = False
     return logger
+
 
 def make_tb_writer(log_dir: Path) -> SummaryWriter:
     log_dir.mkdir(parents=True, exist_ok=True)

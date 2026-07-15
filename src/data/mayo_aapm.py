@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict
 
 import numpy as np
 import torch
 from torch.utils.data import Dataset
 
+
 class MayoAAPMDataset(Dataset):
-
-
+    
     def __init__(self, root: str | Path, split: str):
         super().__init__()
         self.root = Path(root) / split

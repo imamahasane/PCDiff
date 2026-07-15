@@ -5,12 +5,14 @@ from typing import Literal
 
 import torch
 
+
 @dataclass
 class DiffusionSchedule:
-    betas: torch.Tensor        # (T,)
-    alphas: torch.Tensor       # (T,)
-    alpha_bars: torch.Tensor   # (T,)
-    posterior_variance: torch.Tensor  # (T,)
+    betas: torch.Tensor
+    alphas: torch.Tensor
+    alpha_bars: torch.Tensor
+    posterior_variance: torch.Tensor
+
 
 def make_beta_schedule(
     schedule: Literal["linear"] = "linear",
@@ -21,8 +23,8 @@ def make_beta_schedule(
 ) -> torch.Tensor:
     if schedule != "linear":
         raise ValueError(f"Unsupported beta schedule: {schedule}")
-    betas = torch.linspace(beta_start, beta_end, T, device=device)
-    return betas
+    return torch.linspace(beta_start, beta_end, T, device=device)
+
 
 def make_ddpm_schedule(
     T: int,
@@ -35,7 +37,6 @@ def make_ddpm_schedule(
     alphas = 1.0 - betas
     alpha_bars = torch.cumprod(alphas, dim=0)
 
-    # posterior variance for p(x_{t-1} | x_t, x0)
     alpha_bars_prev = torch.cat([torch.ones(1, device=device), alpha_bars[:-1]], dim=0)
     posterior_variance = betas * (1.0 - alpha_bars_prev) / (1.0 - alpha_bars)
 
