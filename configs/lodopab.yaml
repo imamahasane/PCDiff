@@ -1,3 +1,6 @@
+# LoDoPaB-CT base config. Shared by all models via `--model`; the `model:`
+# section below is only consumed by the proposed method's UNet
+# (scripts/train.py's baseline branches build their own fixed architectures).
 experiment:
   name: lodopab_pcdiff
   out_dir: runs/lodopab
@@ -24,7 +27,7 @@ diffusion:
 
 model:
   in_channels: 2      # x_t concat c = A*(y)
-  out_channels: 1     # predict epsilon in image domain
+  out_channels: 1
   base_channels: 128
   channel_mult: [1, 1, 2, 2, 4, 4]
   num_res_blocks: 2
@@ -34,8 +37,19 @@ model:
   use_checkpoint: false
 
 loss:
+  # physics_weight = lambda in the manuscript's L_diff + lambda*L_phys
+  # objective. The manuscript's Implementation Details section does not
+  # currently state this value explicitly -- add it once confirmed this is
+  # what was actually used for the reported checkpoint (see DECISIONS.md).
   physics_weight: 1.0
   perceptual:
+    # UNRESOLVED (DECISIONS.md D-004): both LoDoPaB and Mayo-AAPM configs
+    # ship with this disabled, but Table 2 shows "Full Model" outperforming
+    # "w/o Perceptual Loss" -- which only makes sense if perceptual loss was
+    # actually on for whichever run produced "Full Model". Do not flip this
+    # to `true` to "make the ablation consistent" without confirming it
+    # against the actual training config used for the reported checkpoint;
+    # that would be guessing at a resolution, not finding one.
     enabled: false
     weight: 0.1
     layers: ["relu2_2", "relu3_3"]

@@ -1,3 +1,5 @@
+# Mayo-AAPM 2016 base config. Shared by all models via `--model`; see
+# lodopab.yaml for notes on the `loss:` section fields shared with this file.
 experiment:
   name: mayo_pcdiff
   out_dir: runs/mayo_aapm
@@ -37,6 +39,7 @@ model:
 loss:
   physics_weight: 1.0
   perceptual:
+    # See lodopab.yaml -- same D-004 caveat applies here.
     enabled: false
     weight: 0.1
     layers: ["relu2_2", "relu3_3"]
