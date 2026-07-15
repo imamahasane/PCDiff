@@ -8,6 +8,8 @@ omegaconf>=2.3
 tensorboard>=2.14
 scikit-image>=0.21
 h5py>=3.9
-pydicom>=2.4
-opencv-python>=4.8
+
 torch-radon>=2.0.0
+
+
+# pydicom>=2.4
