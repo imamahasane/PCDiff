@@ -39,8 +39,8 @@ model:
 loss:
   physics_weight: 1.0
   perceptual:
-    # See lodopab.yaml -- same D-004 caveat applies here.
-    enabled: false
+    # See lodopab.yaml -- D-004 resolved, same conclusion applies here.
+    enabled: true
     weight: 0.1
     layers: ["relu2_2", "relu3_3"]
 

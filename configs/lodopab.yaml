@@ -43,14 +43,9 @@ loss:
   # what was actually used for the reported checkpoint (see DECISIONS.md).
   physics_weight: 1.0
   perceptual:
-    # UNRESOLVED (DECISIONS.md D-004): both LoDoPaB and Mayo-AAPM configs
-    # ship with this disabled, but Table 2 shows "Full Model" outperforming
-    # "w/o Perceptual Loss" -- which only makes sense if perceptual loss was
-    # actually on for whichever run produced "Full Model". Do not flip this
-    # to `true` to "make the ablation consistent" without confirming it
-    # against the actual training config used for the reported checkpoint;
-    # that would be guessing at a resolution, not finding one.
-    enabled: false
+    # Confirmed (DECISIONS.md D-004, resolved): enabled for the training run
+    # underlying the "Full Model" row in Table 1/Table 2.
+    enabled: true
     weight: 0.1
     layers: ["relu2_2", "relu3_3"]
 
